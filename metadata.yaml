@@ -1,0 +1,5 @@
+homepage: "https://yeswetrack.com"
+documentation: "https://github.com/yeswetrack/gtm-flexible-unique-event-id-variable/blob/main/README.md"
+versions:
+  - sha: 86c60858138bd16c9d618c121478f18e52060c41
+    changeNotes: "Initial release"
