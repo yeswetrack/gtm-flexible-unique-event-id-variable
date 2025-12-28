@@ -1,4 +1,4 @@
-﻿___TERMS_OF_SERVICE___
+___TERMS_OF_SERVICE___
 
 By creating or modifying this file you agree to Google Tag Manager's Community
 Template Gallery Developer Terms of Service available at
@@ -54,56 +54,66 @@ ___TEMPLATE_PARAMETERS___
 
 ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
+const copyFromDataLayer = require('copyFromDataLayer');
 const setInWindow = require('setInWindow');
 const copyFromWindow = require('copyFromWindow');
 const getTimestampMillis = require('getTimestampMillis');
 const generateRandom = require('generateRandom');
+
+// Fetch the mode from the template input fields (defaults to 'event')
 const mode = data.mode || 'event';
 
-return getUniqueEventId(mode);
-
+/* ========================= */
+// Main Execution Logic
 /* ========================= */
 
-function getUniqueEventId(mode) {
-  if (mode === 'browser') {
-    return getBrowserId();
-  }
-
-  if (mode === 'page') {
-    return getBrowserId() + '_' + getPageLoadId();
-  }
-
-  return (
-    getBrowserId() +
-    '_' +
-    getPageLoadId() +
-    '_' +
-    getGtmUniqueEventId()
-  );
+if (mode === 'browser') {
+  return getBrowserId();
 }
 
+if (mode === 'page') {
+  return getBrowserId() + '_' + getPageLoadId();
+}
+
+// Default: 'event' mode
+// Returns the concatenated string: BrowserID_PageIDEventID
+return getBrowserId() + '_' + getPageLoadId() + getGtmUniqueEventId();
+
+/* ========================= */
+// Helper Functions
+/* ========================= */
+
+/**
+ * Retrieves the unique event ID from the GTM Data Layer.
+ * Matches your reference logic for handling '00' fallback.
+ */
 function getGtmUniqueEventId() {
-  return data.gtmUniqueEventId || 0;
+  let gtmId = copyFromDataLayer('gtm.uniqueEventId') || 0;
+  return gtmId >= 0 ? gtmId : '00';
 }
 
+/**
+ * Generates or retrieves a persistent ID for the browser.
+ */
 function getBrowserId() {
   let gtmBrowserId = copyFromWindow('gtmBrowserId');
 
   if (!gtmBrowserId) {
-    gtmBrowserId =
-      getTimestampMillis() + generateRandom(100000, 999999);
+    gtmBrowserId = getTimestampMillis() + generateRandom(100000, 999999);
     setInWindow('gtmBrowserId', gtmBrowserId, false);
   }
 
   return gtmBrowserId;
 }
 
+/**
+ * Generates or retrieves a persistent ID for the page load.
+ */
 function getPageLoadId() {
   let pageLoadId = copyFromWindow('gtmPageLoadId');
 
   if (!pageLoadId) {
-    pageLoadId =
-      getTimestampMillis() + generateRandom(100000, 999999);
+    pageLoadId = getTimestampMillis() + generateRandom(100000, 999999);
     setInWindow('gtmPageLoadId', pageLoadId, false);
   }
 
@@ -213,6 +223,39 @@ ___WEB_PERMISSIONS___
       "isEditedByUser": true
     },
     "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "read_data_layer",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "allowedKeys",
+          "value": {
+            "type": 1,
+            "string": "specific"
+          }
+        },
+        {
+          "key": "keyPatterns",
+          "value": {
+            "type": 2,
+            "listItem": [
+              {
+                "type": 1,
+                "string": "gtm.uniqueEventId"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
   }
 ]
 
@@ -224,6 +267,6 @@ scenarios: []
 
 ___NOTES___
 
-Created on 28/12/2025, 11:05:32
+Created on 11/03/2021, 11:05:32
 
 
